@@ -1,0 +1,171 @@
+set cut_paste_input [stack 0]
+version 17.0 v4
+push $cut_paste_input
+push 0
+Group {
+ inputs 2
+ name AutoKey_Keymix
+ knobChanged {
+# --- AutoKey_Keymix: compact, function-based knobChanged ---
+# ---------------------------
+# Helpers
+# ---------------------------
+def _set_enabled(node, knob_names, state):
+    s = bool(state)
+    for name in knob_names:
+        if name in node.knobs():
+            node[name].setEnabled(s)
+
+def _get_mix(node):
+    mk = node.node('Master_Keymix')
+    if not mk:
+        nuke.message('Missing Master_Keymix')
+        return None
+    return mk['mix']
+
+def _read_int(node, knob_name):
+    return int(node[knob_name].value())
+
+def _apply_single_frame(mix, f):
+    mix.clearAnimated()
+    mix.setAnimated()
+    mix.setValueAt(0, f - 1)
+    mix.setValueAt(1, f)
+    mix.setValueAt(0, f + 1)
+
+def _apply_frame_range(mix, first, last):
+    mix.clearAnimated()
+    mix.setAnimated()
+    mix.setValueAt(0, first - 1)
+    mix.setValueAt(1, first)
+    mix.setValueAt(1, last)
+    mix.setValueAt(0, last + 1)
+
+def _apply_fade(mix, first, last, fade_start, fade_end):
+    mix.clearAnimated()
+    mix.setAnimated()
+    mix.setValueAt(0, fade_start)
+    mix.setValueAt(1, first)
+    mix.setValueAt(1, last)
+    mix.setValueAt(0, fade_end)
+
+def _update_animation(node):
+    mix = _get_mix(node)
+    if mix is None:
+        return
+    frame_range_on = bool(node['Frame_Range'].value())
+    fade_on = bool(node['Fade'].value())
+    first = _read_int(node, 'First_Frame')
+    last = _read_int(node, 'Last_Frame')
+    fade_start = _read_int(node, 'Fade_Start_Frame')
+    fade_end = _read_int(node, 'Fade_End_Frame')
+    if frame_range_on and fade_on:
+        _apply_fade(mix, first, last, fade_start, fade_end)
+    elif frame_range_on:
+        _apply_frame_range(mix, first, last)
+    else:
+        _apply_single_frame(mix, _read_int(node, 'Frame'))
+
+def _handle_frame_range_toggle(node):
+    on = bool(node['Frame_Range'].value())
+    _set_enabled(node, ['Settocurrentframe', 'Frame'], not on)
+    _set_enabled(node, ['First_Frame', 'Last_Frame', 'Fade'], on)
+
+def _handle_fade_toggle(node):
+    on = bool(node['Fade'].value())
+    _set_enabled(node, ['Fade_Start_Frame', 'Fade_End_Frame'], on)
+
+n = nuke.thisNode()
+k = nuke.thisKnob()
+name = k.name()
+
+try:
+    handler = {'Frame_Range': _handle_frame_range_toggle,
+               'Fade': _handle_fade_toggle}.get(name)
+    if handler:
+        handler(n)
+    if name in ('Frame_Range', 'Fade', 'Frame', 'First_Frame', 'Last_Frame',
+                'Fade_Start_Frame', 'Fade_End_Frame'):
+        _update_animation(n)
+except Exception:
+    import traceback
+    traceback.print_exc()
+
+ }
+ onCreate "n = nuke.thisNode(); n.knob(\"Settocurrentframe\").execute(); n['onCreate'].setValue('')"
+ tile_color 0xe16200ff
+ label "Mix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]>\[value First_Frame] / \[value Last_Frame]>\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
+ selected true
+ xpos -370
+ ypos -86
+ addUserKnob {20 AutoKey_Keymix}
+ addUserKnob {26 "" +STARTLINE}
+ addUserKnob {26 Description l "" +STARTLINE T "This node is a version of a Keymix that automatically sets a mix of 1 on the \nframes selected and 0 either side."}
+ addUserKnob {26 ""}
+ addUserKnob {3 Frame}
+ Frame {55}
+ addUserKnob {22 Settocurrentframe l "Set Current Frame" T "n = nuke.thisNode()\nf = nuke.frame()\n\n\n# 1) write the frame into the Int knob\nn\['Frame'].setValue(f)\n\n\n# 2) find the inner mix node and animate its 'mix' knob\nmk = n.node('Master_Keymix')\nif not mk:\n    nuke.message('Missing Master_Keymix')\nelse:\n    k = mk\['mix']\n    # clear any existing animation (optional but recommended)\n    k.clearAnimated()\n\n\n    # enable animation on the single-channel knob\n    k.setAnimated()\n\n\n    # set your three keyframes\n    k.setValueAt(0, f-1)  # mix = 0 at frame f–1\n    k.setValueAt(1, f)    # mix = 1 at frame f\n    k.setValueAt(0, f+1)  # mix = 0 at frame f+1" +STARTLINE}
+ addUserKnob {26 ""}
+ addUserKnob {3 Frame_Range_Mix l "Frame Range Mix"}
+ Frame_Range_Mix {{Master_Keymix.mix}}
+ addUserKnob {6 Frame_Range l "Frame Range" +STARTLINE}
+ addUserKnob {3 First_Frame l " " +DISABLED}
+ First_Frame {50}
+ addUserKnob {3 Last_Frame l "" -STARTLINE +DISABLED}
+ Last_Frame {60}
+ addUserKnob {26 ""}
+ addUserKnob {6 Fade l "Fade In - Out" +DISABLED +STARTLINE}
+ addUserKnob {3 Fade_Start_Frame l "Fade Start Frame" +DISABLED}
+ Fade_Start_Frame {45}
+ addUserKnob {3 Fade_End_Frame l "Fade End Frame" -STARTLINE +DISABLED}
+ Fade_End_Frame {65}
+ addUserKnob {26 "" +STARTLINE}
+ addUserKnob {20 Setings l "Keymix Properties" n 1}
+ Setings 0
+ addUserKnob {41 channels T Master_Keymix.channels}
+ addUserKnob {41 maskChannel l "mask channel" T Master_Keymix.maskChannel}
+ addUserKnob {41 invertMask l invert T Master_Keymix.invertMask}
+ addUserKnob {41 bbox l "Set BBox to" T Master_Keymix.bbox}
+ addUserKnob {20 endGroup n -1}
+ addUserKnob {26 Name_Author l "" +STARTLINE T "<span style=\"color:#666\"><br/><b>AutoKey_Keymix v1.0</b> - <a  style=\"color:#666;text-decoration: none;\">Jake Hines</a> "}
+ addUserKnob {20 About}
+ addUserKnob {26 Title l "" +STARTLINE T "<font face=\"Verdana\"><font color=#ffffff><font size=\"7\">AutoKey_Keymix v1.0</font><font size=\"5\">\n"}
+ addUserKnob {26 Author l "" +STARTLINE T "<font face=\"Verdana\"><font color=#ffffff><font size=\"3\">by Jake Hines"}
+ addUserKnob {26 "" +STARTLINE}
+ addUserKnob {26 Website l "" +STARTLINE T "<b><a href=\"https://www.linkedin.com/in/jake-hines/?isSelfProfile=true\"><span style=\"color:#C8C8C8;\">www.linkedin.com/in/jake-hines\n</span></a><b>"}
+}
+ Input {
+  inputs 0
+  name Mask
+  label "(input \[value number])"
+  xpos 292
+  ypos 160
+  number 1
+ }
+ Input {
+  inputs 0
+  name A
+  label "(input \[value number])"
+  xpos -270
+  ypos 160
+  number 2
+ }
+ Input {
+  inputs 0
+  name B
+  xpos 0
+ }
+ Keymix {
+  inputs 3
+  mix {{curve x54 0 1 0}}
+  bbox B
+  name Master_Keymix
+  xpos 0
+  ypos 160
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+end_group
