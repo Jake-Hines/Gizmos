@@ -6,10 +6,6 @@ Group {
  inputs 2
  name AutoKey_Keymix
  knobChanged {
-# --- AutoKey_Keymix: compact, function-based knobChanged ---
-# ---------------------------
-# Helpers
-# ---------------------------
 def _set_enabled(node, knob_names, state):
     s = bool(state)
     for name in knob_names:
