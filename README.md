@@ -3,6 +3,8 @@ I am by no means a coder so if you look at it, it may not be perfect, all I know
 
 Have fun, let me know if they work alright and are useful to you. 
 
+There should be a guide explaining the node within its folder so if anything is confusing please read it.
+
 How to install:
 
 1. Clone this repo on your machine: <br />
