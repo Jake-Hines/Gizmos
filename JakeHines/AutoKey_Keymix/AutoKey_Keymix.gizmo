@@ -126,7 +126,7 @@ except Exception:
  addUserKnob {26 "" +STARTLINE}
  addUserKnob {26 Website l "" +STARTLINE T "<b><a href=\"https://www.linkedin.com/in/jake-hines/?isSelfProfile=true\"><span style=\"color:#C8C8C8;\">www.linkedin.com/in/jake-hines\n</span></a><b>"}
  addUserKnob {26 _1 l "" +STARTLINE T "<b><a href=\"https://github.com/Jake-Hines/Gizmos.git\"><span style=\"color:#C8C8C8;\">www.github.com/Jake-Hines/Gizmos.git\n</span></a><b>"}
-}
+ }
  Input {
   inputs 0
   name Mask
