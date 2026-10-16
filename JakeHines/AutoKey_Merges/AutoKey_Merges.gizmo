@@ -91,7 +91,7 @@ except Exception:
  }
  onCreate "n = nuke.thisNode(); n.knob(\"Settocurrentframe\").execute(); n['onCreate'].setValue('')"
  tile_color 0x4b5ec6ff
- label "\[value MergeType] \[if \{\[value MergeType] == \"Merge\"\} \{return \"(\[value Master_Merge.operation])\"\}]\[if \{\[value MergeType] == \"Channel Merge\"\} \{return \"(\[value Master_ChannelMerge.operation])\"\}]\nMix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]-\[value First_Frame] / \[value Last_Frame]-\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
+ label " \[value MergeType] \[if \{\[value MergeType] == \"Merge\"\} \{return \"(\[value Master_Merge.operation])\"\}]\[if \{\[value MergeType] == \"Channel Merge\"\} \{return \"(\[value Master_ChannelMerge.operation])\"\}]\nMix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]-\[value First_Frame] / \[value Last_Frame]-\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
  selected true
  xpos -260
  ypos -188
