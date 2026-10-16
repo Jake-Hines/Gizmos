@@ -91,7 +91,7 @@ except Exception:
  }
  onCreate "n = nuke.thisNode(); n.knob(\"Settocurrentframe\").execute(); n['onCreate'].setValue('')"
  tile_color 0x4b5ec6ff
- label "[value MergeType]\nMix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]-\[value First_Frame] / \[value Last_Frame]-\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
+ label "\[value MergeType] \[if \{\[value MergeType] == \"Merge\"\} \{return \"(\[value Master_Merge.operation])\"\}]\[if \{\[value MergeType] == \"Channel Merge\"\} \{return \"(\[value Master_ChannelMerge.operation])\"\}]\nMix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]-\[value First_Frame] / \[value Last_Frame]-\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
  selected true
  xpos -260
  ypos -188
@@ -121,7 +121,7 @@ except Exception:
  addUserKnob {26 ""}
  addUserKnob {20 Mergeproperties l "Merge Properties" n 1}
  Mergeproperties 0
- addUserKnob {41 operation T Master_Merge.operation}
+ addUserKnob {41 merge_operation T Master_Merge.operation}
  addUserKnob {41 sRGB l "Video colorspace" -STARTLINE T Master_Merge.sRGB}
  addUserKnob {41 screen_alpha l "alpha masking" -STARTLINE T Master_Merge.screen_alpha}
  addUserKnob {41 bbox_1 l "set bbox to " T Master_Merge.bbox}
