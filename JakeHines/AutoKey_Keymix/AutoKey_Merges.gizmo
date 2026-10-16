@@ -1,7 +1,12 @@
 Group {
  inputs 2
- name AutoKey_Keymix
+ name AutoKey_Merges
  knobChanged {
+# --- AutoKey_Keymix: compact, function-based knobChanged ---
+# ---------------------------
+# Helpers
+# ---------------------------
+
 def _set_enabled(node, knob_names, state):
     s = bool(state)
     for name in knob_names:
@@ -85,33 +90,55 @@ except Exception:
 
  }
  onCreate "n = nuke.thisNode(); n.knob(\"Settocurrentframe\").execute(); n['onCreate'].setValue('')"
- tile_color 0xe16200ff
- label "Mix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]>\[value First_Frame] / \[value Last_Frame]>\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
+ tile_color 0x4b5ec6ff
+ label "[value MergeType]\nMix: \[value Frame_Range_Mix]\n\[if \{\[value Frame_Range]\} \{if \{\[value Fade]\} \{return \"Fade: \[value Fade_Start_Frame]-\[value First_Frame] / \[value Last_Frame]-\[value Fade_End_Frame]\"\} \{return \"Range: \[value First_Frame]-\[value Last_Frame]\"\}\} \{return \"Frame: \[value Frame]\"\}]"
  selected true
- xpos -370
- ypos -86
- addUserKnob {20 AutoKey_Keymix}
- addUserKnob {26 "" +STARTLINE}
- addUserKnob {26 Description l "" +STARTLINE T "This node is a version of a Keymix that automatically sets a mix of 1 on the \nframes selected and 0 either side."}
+ xpos -260
+ ypos -188
+ addUserKnob {20 AutoKey_Merges}
  addUserKnob {26 ""}
+ addUserKnob {26 Description l "" +STARTLINE T "This node is a version of the main merges but automatically sets a mix of 1 on the \nframes selected and 0 either side, saving you from going to those frames."}
+ addUserKnob {26 ""}
+ addUserKnob {4 MergeType l "Merge Type" M {Merge Keymix "Channel Merge"}}
+ addUserKnob {26 "" +STARTLINE}
  addUserKnob {3 Frame}
- Frame {55}
+ Frame 1
  addUserKnob {22 Settocurrentframe l "Set Current Frame" T "n = nuke.thisNode()\nf = nuke.frame()\n\n\n# 1) write the frame into the Int knob\nn\['Frame'].setValue(f)\n\n\n# 2) find the inner mix node and animate its 'mix' knob\nmk = n.node('Master_Keymix')\nif not mk:\n    nuke.message('Missing Master_Keymix')\nelse:\n    k = mk\['mix']\n    # clear any existing animation (optional but recommended)\n    k.clearAnimated()\n\n\n    # enable animation on the single-channel knob\n    k.setAnimated()\n\n\n    # set your three keyframes\n    k.setValueAt(0, f-1)  # mix = 0 at frame f–1\n    k.setValueAt(1, f)    # mix = 1 at frame f\n    k.setValueAt(0, f+1)  # mix = 0 at frame f+1" +STARTLINE}
  addUserKnob {26 ""}
  addUserKnob {3 Frame_Range_Mix l "Frame Range Mix"}
  Frame_Range_Mix {{Master_Keymix.mix}}
  addUserKnob {6 Frame_Range l "Frame Range" +STARTLINE}
  addUserKnob {3 First_Frame l " " +DISABLED}
- First_Frame {50}
+ First_Frame 50
  addUserKnob {3 Last_Frame l "" -STARTLINE +DISABLED}
- Last_Frame {60}
+ Last_Frame 60
  addUserKnob {26 ""}
  addUserKnob {6 Fade l "Fade In - Out" +DISABLED +STARTLINE}
  addUserKnob {3 Fade_Start_Frame l "Fade Start Frame" +DISABLED}
- Fade_Start_Frame {45}
+ Fade_Start_Frame 45
  addUserKnob {3 Fade_End_Frame l "Fade End Frame" -STARTLINE +DISABLED}
- Fade_End_Frame {65}
- addUserKnob {26 "" +STARTLINE}
+ Fade_End_Frame 65
+ addUserKnob {26 ""}
+ addUserKnob {20 Mergeproperties l "Merge Properties" n 1}
+ Mergeproperties 0
+ addUserKnob {41 operation T Master_Merge.operation}
+ addUserKnob {41 sRGB l "Video colorspace" -STARTLINE T Master_Merge.sRGB}
+ addUserKnob {41 screen_alpha l "alpha masking" -STARTLINE T Master_Merge.screen_alpha}
+ addUserKnob {41 bbox_1 l "set bbox to " T Master_Merge.bbox}
+ addUserKnob {41 metainput l "metadata from" -STARTLINE T Master_Merge.metainput}
+ addUserKnob {41 rangeinput l "range from" -STARTLINE T Master_Merge.rangeinput}
+ addUserKnob {26 ""}
+ addUserKnob {41 Achannels l "A channels" T Master_Merge.Achannels}
+ addUserKnob {41 Bchannels l "B channels" T Master_Merge.Bchannels}
+ addUserKnob {41 output T Master_Merge.output}
+ addUserKnob {41 also_merge l "also merge" T Master_Merge.also_merge}
+ addUserKnob {26 ""}
+ addUserKnob {26 "" l mask T ""}
+ addUserKnob {41 maskChannelInput l "" -STARTLINE T Master_Merge.maskChannelInput}
+ addUserKnob {41 inject -STARTLINE T Master_Merge.inject}
+ addUserKnob {41 invert_mask l invert -STARTLINE T Master_Merge.invert_mask}
+ addUserKnob {41 fringe -STARTLINE T Master_Merge.fringe}
+ addUserKnob {20 endGroup_1 n -1}
  addUserKnob {20 Setings l "Keymix Properties" n 1}
  Setings 0
  addUserKnob {41 channels T Master_Keymix.channels}
@@ -119,11 +146,24 @@ except Exception:
  addUserKnob {41 invertMask l invert T Master_Keymix.invertMask}
  addUserKnob {41 bbox l "Set BBox to" T Master_Keymix.bbox}
  addUserKnob {20 endGroup n -1}
- addUserKnob {26 Name_Author l "" +STARTLINE T "<span style=\"color:#666\"><br/><b>AutoKey_Keymix v1.0</b> - <a  style=\"color:#666;text-decoration: none;\">Jake Hines</a> "}
+ addUserKnob {20 ChannelMergeProp l "ChannelMerge Properties" n 1}
+ ChannelMergeProp 0
+ addUserKnob {41 A l "A channel" T Master_ChannelMerge.A}
+ addUserKnob {41 operation_1 l operation T Master_ChannelMerge.operation}
+ addUserKnob {41 B l "B channel" T Master_ChannelMerge.B}
+ addUserKnob {41 output_1 l output T Master_ChannelMerge.output}
+ addUserKnob {41 bbox_2 l "Set BBox to " T Master_ChannelMerge.bbox}
+ addUserKnob {26 "" l mask T ""}
+ addUserKnob {41 maskChannelInput_1 l "" -STARTLINE T Master_ChannelMerge.maskChannelInput}
+ addUserKnob {41 inject_1 l inject -STARTLINE T Master_ChannelMerge.inject}
+ addUserKnob {41 invert_mask_1 l invert -STARTLINE T Master_ChannelMerge.invert_mask}
+ addUserKnob {41 fringe_1 l fringe -STARTLINE T Master_ChannelMerge.fringe}
+ addUserKnob {20 endGroup_2 n -1}
+ addUserKnob {26 Name_Author l "" +STARTLINE T "<span style=\"color:#666\"><br/><b>AutoKey_Merges v1.0</b> - <a  style=\"color:#666;text-decoration: none;\">Jake Hines</a> "}
  addUserKnob {20 About}
- addUserKnob {26 Title l "" +STARTLINE T "<font face=\"Verdana\"><font color=#ffffff><font size=\"7\">AutoKey_Keymix v1.0</font><font size=\"5\">\n"}
+ addUserKnob {26 Title l "" +STARTLINE T "<font face=\"Verdana\"><font color=#ffffff><font size=\"7\">AutoKey_Merges v1.0</font><font size=\"5\">\n"}
  addUserKnob {26 Author l "" +STARTLINE T "<font face=\"Verdana\"><font color=#ffffff><font size=\"3\">by Jake Hines"}
- addUserKnob {26 "" +STARTLINE}
+ addUserKnob {26 ""}
  addUserKnob {26 Website l "" +STARTLINE T "<b><a href=\"https://www.linkedin.com/in/jake-hines/?isSelfProfile=true\"><span style=\"color:#C8C8C8;\">www.linkedin.com/in/jake-hines\n</span></a><b>"}
  addUserKnob {26 _1 l "" +STARTLINE T "<b><a href=\"https://github.com/Jake-Hines/Gizmos.git\"><span style=\"color:#C8C8C8;\">www.github.com/Jake-Hines/Gizmos.git\n</span></a><b>"}
 }
@@ -131,34 +171,111 @@ except Exception:
   inputs 0
   name Mask
   label "(input \[value number])"
-  xpos 292
-  ypos 160
+  xpos 510
+  ypos 170
   number 1
  }
+set Ndabd8d80 [stack 0]
+ Dot {
+  name Dot8
+  xpos 544
+  ypos 264
+ }
+set N26a14900 [stack 0]
  Input {
   inputs 0
   name A
   label "(input \[value number])"
-  xpos -270
-  ypos 160
+  xpos -480
+  ypos 170
   number 2
  }
+set Ndabd9200 [stack 0]
+ Dot {
+  name Dot9
+  xpos -446
+  ypos 264
+ }
+set N26a14d80 [stack 0]
  Input {
   inputs 0
   name B
   xpos 0
+  ypos -171
  }
+ Dot {
+  name Dot7
+  xpos 34
+  ypos 3
+ }
+set N26a14480 [stack 0]
+ Dot {
+  name Dot5
+  xpos 263
+  ypos 3
+ }
+ ChannelMerge {
+  inputs 2+1
+  mix {{Master_Keymix.mix}}
+  name Master_ChannelMerge
+  xpos 229
+  ypos 249
+ }
+ Dot {
+  name Dot1
+  xpos 263
+  ypos 498
+ }
+push $N26a14900
+ Dot {
+  name Dot3
+  xpos 544
+  ypos 346
+ }
+push $N26a14d80
+ Dot {
+  name Dot4
+  xpos -446
+  ypos 346
+ }
+push $N26a14480
  Keymix {
   inputs 3
-  mix {{curve x54 0 1 0}}
-  bbox B
+  mix {{curve 0 1 0}}
   name Master_Keymix
   xpos 0
-  ypos 160
+  ypos 337
+ }
+push $Ndabd8d80
+push $Ndabd9200
+push $N26a14480
+ Dot {
+  name Dot6
+  xpos -163
+  ypos 3
+ }
+ Merge2 {
+  inputs 2+1
+  mix {{Master_Keymix.mix}}
+  name Master_Merge
+  xpos -197
+  ypos 176
+ }
+ Dot {
+  name Dot2
+  xpos -163
+  ypos 498
+ }
+ Switch {
+  inputs 3
+  which {{parent.MergeType}}
+  name Switch1
+  xpos 0
+  ypos 495
  }
  Output {
   name Output1
   xpos 0
-  ypos 300
+  ypos 639
  }
 end_group
