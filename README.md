@@ -18,7 +18,7 @@ How to install:
 ├── init.py
 ├── ...
 └── JakeHines/
-    ├── AutoKey_Keymix/
+    ├── AutoKey_Merges/
     ├── Jake_Hines_Icon.png
     ├── menu.py
     └── init.py
