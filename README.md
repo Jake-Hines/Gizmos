@@ -22,7 +22,7 @@ How to install:
     └── init.py
 ```
 4. Have your nuke see my setup: <br />
-Add this line to the .nuke/ init.py folder: <br />
+Add this line to the ```.nuke/init.py``` folder: <br />
 ```nuke.pluginAddPath("./JakeHines")```
 
 Restart Nuke and it should be their on your menu with my goofy logo
